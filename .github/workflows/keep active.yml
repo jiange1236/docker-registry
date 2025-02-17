@@ -1,0 +1,20 @@
+name: Keep Workflow Active
+
+on:
+  schedule:
+    - cron: '0 0 15 * *' # 每月15日午夜（UTC时间）执行
+  workflow_dispatch:
+
+jobs:
+  commit-empty:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Commit empty changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit --allow-empty -m "Keep workflow active"
+          git push
