@@ -23,12 +23,11 @@ export async function onRequest(context) {
     redirect: isDockerHub ? 'manual' : 'follow',
   });
   let registryResponse = await fetch(registryRequest);
-  if (registryResponse.status === 307 && isDockerHub) {
-    const location = registryResponse.headers.get('location');
+  let location;
+  if (registryResponse.status === 307 && isDockerHub) {// fetch s3 blob
+    location = registryResponse.headers.get('location');
     registryRequest = new Request(location, {
-      method: request.method,
-      headers: headers,
-      body: request.body,
+      method: 'GET',
       redirect: 'follow',
     });
     registryResponse = await fetch(registryRequest);
@@ -44,8 +43,9 @@ export async function onRequest(context) {
     console.log(
       'req on',
       request.url,
+      location,
       registryResponse.status,
-      'req headers', JSON.stringify(Object.fromEntries(new Map(request.headers))),
+      'req headers', JSON.stringify(Object.fromEntries(new Map(headers.entries()))),
       'res headers', JSON.stringify(Object.fromEntries(new Map(registryResponse.headers))),
       body,
     );
